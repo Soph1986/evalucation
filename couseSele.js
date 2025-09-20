@@ -20,16 +20,16 @@ const View = (() => {
   };
 
   // fn to generate template string
-  const createTmp = (courses, withButton = true) => {
+  const createTmp = (courses) => {
     let template = "";
-    
+  
     courses.forEach(course => {
       
       template += `
         <li data-name="${course.courseName}" >
           <strong>${course.courseName}</strong><br>
-          Type: ${course.required ? "Compulsory" : "Elective"}<br>
-          Credit: ${course.credit}
+          Course Type: ${course.required ? "Compulsory" : "Elective"}<br>
+          Course Credit: ${course.credit}
         </li>
       `;
     });
@@ -69,7 +69,8 @@ const Model = ((view, api) => {
         console.log("Fetched courses:", courses);
         this.#courseList = courses;
         const template = createTmp(this.#courseList);
-        render(dom.avail_container, template);
+        const topLi = dom.avail_container.querySelector(".no-style");
+    topLi.insertAdjacentHTML("afterend", template);
       });
     }
 
@@ -90,7 +91,7 @@ const Model = ((view, api) => {
     // --- temporary add/remove (when clicking on Available course li) ---
     toggleTemp(courseName) {
       const course = this.#courseList.find(c => c.courseName === courseName);
-      if (!course) return;
+      //if (!course) return;
 
       const index = this.#tempSelections.findIndex(c => c.courseName === courseName);
 
@@ -135,7 +136,10 @@ const Model = ((view, api) => {
   
       //Render 
       const template = createTmp(this.#confirmedSelections);
-      render(dom.select_course, template);
+
+      const topLi = dom.select_course.querySelector(".no-style");
+      topLi.insertAdjacentHTML("afterend", template);
+      //render(dom.select_course, template);
   
     
       this.#tempSelections = [];
