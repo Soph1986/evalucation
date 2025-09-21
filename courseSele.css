@@ -21,13 +21,7 @@ body {
   }
   
  
-  .list-title {
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 10px;
-   
-   
-  }
+ 
   
  
   .course-list {
@@ -48,7 +42,7 @@ body {
     text-align: center;
     padding: 0.5px;
     margin: 1px;
-    border: 1px solid black;
+    border: 2px solid black;
    
     cursor: pointer;
     
@@ -56,7 +50,7 @@ body {
   .course-list li.no-style {
     background: none !important;
     border: none !important;
-    color: inherit;
+    
    
   }
   .course-list li:nth-child(even) {
@@ -70,7 +64,7 @@ body {
 
   .course-list li.selected {
     background-color: deepskyblue; 
-    border-color: deepskyblue;
+    
   }
   
 

@@ -24,7 +24,7 @@ const View = (() => {
     let template = "";
   
     courses.forEach(course => {
-      
+      // data- custom data attribute, store extra info on HTML element, access in js, element.dataset.
       template += `
         <li data-name="${course.courseName}" >
           <strong>${course.courseName}</strong><br>
@@ -38,9 +38,17 @@ const View = (() => {
  
   
   //Render the data within some element
-  const render = (elem, temp)=>{
-      elem.innerHTML = temp;
-  }
+
+  
+   
+
+    const render = (elem, temp)=>{
+  // the first <li> is available courses or selected courses
+      const topLi = elem.querySelector(".no-style");
+      // append the <li>s after it 
+      topLi.insertAdjacentHTML("afterend", temp);
+        
+    }
 
   return {
       dom, 
@@ -69,8 +77,8 @@ const Model = ((view, api) => {
         console.log("Fetched courses:", courses);
         this.#courseList = courses;
         const template = createTmp(this.#courseList);
-        const topLi = dom.avail_container.querySelector(".no-style");
-    topLi.insertAdjacentHTML("afterend", template);
+        
+        render (dom.avail_container, template);
       });
     }
 
@@ -91,7 +99,7 @@ const Model = ((view, api) => {
     // --- temporary add/remove (when clicking on Available course li) ---
     toggleTemp(courseName) {
       const course = this.#courseList.find(c => c.courseName === courseName);
-      //if (!course) return;
+      if (!course) return false;
 
       const index = this.#tempSelections.findIndex(c => c.courseName === courseName);
 
@@ -104,16 +112,19 @@ const Model = ((view, api) => {
         this.#tempSelections.push(course);
         this.#totalCredits += course.credit;
       } else {
-        // remove
+        
         this.#totalCredits -= this.#tempSelections[index].credit;
+        // remove that course
         this.#tempSelections.splice(index, 1);
       }
-
+      
       dom.total_score.textContent = this.#totalCredits;
+      return true;
     }
 
     
     confirmSelections() {
+      
       if (this.#tempSelections.length === 0) {
         alert("Please select at least one course first.");
         return;
@@ -129,6 +140,7 @@ const Model = ((view, api) => {
       }
   
       // Move temp selections into confirmed
+      // it could be this.#confirmedSelections = this. # tempSelections. 
       this.#confirmedSelections = [
         ...this.#confirmedSelections,
         ...this.#tempSelections
@@ -137,11 +149,10 @@ const Model = ((view, api) => {
       //Render 
       const template = createTmp(this.#confirmedSelections);
 
-      const topLi = dom.select_course.querySelector(".no-style");
-      topLi.insertAdjacentHTML("afterend", template);
-      //render(dom.select_course, template);
+      
+      render(dom.select_course, template);
   
-    
+      
       this.#tempSelections = [];
       const allLis = dom.avail_container.querySelectorAll("li");
   allLis.forEach(li => li.classList.remove("selected"));
@@ -161,28 +172,37 @@ const Model = ((view, api) => {
 const Controller = ((model, view) => {
   const { dom } = view;
   const { Courses } = model;
-  const init = () => {
-    const courses = new Courses();
+  
+  const courses = new Courses();
 
     // Handle click on Available Courses (toggle)
-    dom.avail_container.addEventListener("click", (e) => {
-      const li = e.target.closest("li");
-      if (!li) return;
-
-      const courseName = li.dataset.name;
-      courses.toggleTemp(courseName);
-      li.classList.toggle("selected");  
+    const select = (()=>{
+      dom.avail_container.addEventListener("click", (e) => {
+        const li = e.target.closest("li");
+        if (!li) return;
+  
+        const courseName = li.dataset.name;
+        if (courses.toggleTemp(courseName)) {
+          // <li> can switch "selected" and "unselected" when it is clicked 
+            li.classList.toggle("selected"); 
+        }
+       
+         
     });
-
-   
+    })()
+  
+  const add = (()=>{
     dom.add_btn.addEventListener("click", () => {
       courses.confirmSelections();
     });
+  })()
+   
+  
     
-  };
 
-  return { init };
+
+  return { select, add };
 })(Model, View)
 
 
-Controller.init();
+Controller();
